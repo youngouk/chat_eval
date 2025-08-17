@@ -1,0 +1,39 @@
+{
+  "consistency": {
+    "target": 0.9,
+    "minimum": 0.8,
+    "calculation": "1 - (standard_deviation / 5.0)"
+  },
+  "confidence": {
+    "target": 0.8,
+    "minimum": 0.7,
+    "factors": {
+      "consistency_weight": 0.4,
+      "outlier_weight": 0.3,
+      "sample_size_weight": 0.3
+    }
+  },
+  "outlier_detection": {
+    "method": "IQR",
+    "multiplier": 1.5,
+    "min_samples": 2
+  },
+  "validation": {
+    "score_range": {
+      "min": 1.0,
+      "max": 5.0
+    },
+    "max_deviation": 0.5,
+    "required_fields": [
+      "scores",
+      "evidence",
+      "improvements"
+    ]
+  },
+  "performance": {
+    "timeout_per_provider": 5000,
+    "total_timeout": 10000,
+    "max_retries": 3,
+    "backoff_base": 1000
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2024-01-16",
+  "author": "CX Team",
+  "evaluation_criteria": {
+    "업무능력": {
+      "weight": 0.6,
+      "subcriteria": {
+        "고객_질문_내용_파악": {
+          "weight": 0.167,
+          "description": "고객의 질문과 요구사항을 정확히 파악",
+          "evaluation_points": [
+            "질문의 핵심 파악 여부",
+            "추가 정보 요청의 적절성",
+            "문제 정의의 명확성"
+          ]
+        },
+        "파악_및_해결_적극성": {
+          "weight": 0.167,
+          "description": "문제 해결을 위한 적극적 노력",
+          "evaluation_points": [
+            "능동적 해결 시도",
+            "대안 제시 여부",
+            "follow-up 질문"
+          ]
+        },
+        "답변의_정확성_및_적합성": {
+          "weight": 0.167,
+          "description": "제공한 정보의 정확성과 적절성",
+          "evaluation_points": [
+            "정보의 정확성",
+            "상황에 맞는 답변",
+            "오해의 소지 없음"
+          ]
+        },
+        "도메인_전문성": {
+          "weight": 0.167,
+          "description": "금융 도메인 지식 활용",
+          "evaluation_points": [
+            "전문 용어 적절 사용",
+            "정확한 프로세스 안내",
+            "규정 준수"
+          ]
+        },
+        "신속한_응대": {
+          "weight": 0.167,
+          "description": "응답 속도와 효율성",
+          "evaluation_points": [
+            "첫 응답 시간",
+            "문제 해결 시간",
+            "불필요한 지연 없음"
+          ]
+        },
+        "상황_공감": {
+          "weight": 0.167,
+          "description": "고객 상황 이해와 공감",
+          "evaluation_points": [
+            "상황 파악 정확도",
+            "해결 방향 제시",
+            "고객 입장 고려"
+          ]
+        }
+      }
+    },
+    "문장력": {
+      "weight": 0.25,
+      "subcriteria": {
+        "정확한_맞춤법": {
+          "weight": 0.25,
+          "description": "맞춤법과 문법의 정확성"
+        },
+        "적절한_언어_표현": {
+          "weight": 0.25,
+          "description": "상황에 맞는 언어 사용"
+        },
+        "쉬운_표현_사용": {
+          "weight": 0.25,
+          "description": "이해하기 쉬운 설명"
+        },
+        "단계별_안내": {
+          "weight": 0.25,
+          "description": "체계적이고 순차적인 안내"
+        }
+      }
+    },
+    "기본_태도": {
+      "weight": 0.15,
+      "subcriteria": {
+        "인사_및_추가_문의": {
+          "weight": 0.5,
+          "description": "적절한 인사와 추가 도움 제안"
+        },
+        "양해_표현_사용": {
+          "weight": 0.5,
+          "description": "불편에 대한 양해 구하기"
+        }
+      }
+    }
+  },
+  "scoring": {
+    "scale": {
+      "min": 1.0,
+      "max": 5.0,
+      "step": 0.1
+    },
+    "thresholds": {
+      "excellent": 4.6,
+      "good": 4.2,
+      "average": 3.8,
+      "poor": 3.0
+    },
+    "problematic_criteria": {
+      "total_score": 3.8,
+      "업무능력": 3.5,
+      "문장력": 3.0,
+      "기본태도": 3.0,
+      "relative_threshold": 0.3
+    }
+  },
+  "filters": {
+    "exclude_patterns": [
+      "15분 자동 메시지",
+      "30분 자동 메시지",
+      "안녕하세요 고객님, 핀다 고객경험팀"
+    ],
+    "exclude_tags": [
+      "기타_테스트",
+      "테스트"
+    ],
+    "include_tags": [
+      "자동종료",
+      "수동종료"
+    ]
+  }
+}

@@ -1,0 +1,124 @@
+{
+  "providers": {
+    "openai-gpt5": {
+      "enabled": true,
+      "model": "gpt-5-mini",
+      "temperature": 0.1,
+      "max_tokens": 4000,
+      "timeout": 30000,
+      "reasoningEffort": "medium",
+      "verbosity": "medium",
+      "retry": {
+        "max_attempts": 3,
+        "backoff_multiplier": 2,
+        "initial_delay": 1000
+      },
+      "cost": {
+        "input_per_1k": 0.0002,
+        "output_per_1k": 0.0004
+      },
+      "endpoint": "https://api.openai.com/v1/responses"
+    },
+    "openai": {
+      "enabled": false,
+      "model": "gpt-4o",
+      "temperature": 0.1,
+      "max_tokens": 4000,
+      "timeout": 30000,
+      "retry": {
+        "max_attempts": 3,
+        "backoff_multiplier": 2,
+        "initial_delay": 1000
+      },
+      "cost": {
+        "input_per_1k": 0.0025,
+        "output_per_1k": 0.01
+      },
+      "endpoint": "https://api.openai.com/v1/chat/completions"
+    },
+    "gemini": {
+      "enabled": false,
+      "model": "gemini-2.0-flash-exp",
+      "temperature": 0.1,
+      "max_tokens": 4000,
+      "timeout": 30000,
+      "retry": {
+        "max_attempts": 3,
+        "backoff_multiplier": 2,
+        "initial_delay": 1000
+      },
+      "cost": {
+        "input_per_1k": 0,
+        "output_per_1k": 0
+      },
+      "endpoint": "https://generativelanguage.googleapis.com/v1beta/models"
+    },
+    "gemini-25": {
+      "enabled": true,
+      "model": "models/gemini-2.5-pro",
+      "temperature": 0.1,
+      "max_tokens": 4000,
+      "top_p": 0.95,
+      "top_k": 40,
+      "timeout": 30000,
+      "retry": {
+        "max_attempts": 3,
+        "backoff_multiplier": 2,
+        "initial_delay": 1000
+      },
+      "cost": {
+        "input_per_1k": 0.0001,
+        "output_per_1k": 0.0002
+      },
+      "endpoint": "https://generativelanguage.googleapis.com/v1beta/models",
+      "available_models": [
+        {
+          "name": "gemini-2.5-pro",
+          "display_name": "Gemini 2.5 Pro",
+          "description": "고성능 추론 및 복잡한 분석 작업에 최적화",
+          "model_id": "models/gemini-2.5-pro",
+          "cost": {
+            "input_per_1k": 0.0005,
+            "output_per_1k": 0.001
+          },
+          "features": [
+            "심층 분석",
+            "복잡한 추론",
+            "상세한 피드백"
+          ]
+        },
+        {
+          "name": "gemini-2.5-flash",
+          "display_name": "Gemini 2.5 Flash",
+          "description": "빠른 응답과 효율적인 처리에 최적화",
+          "model_id": "models/gemini-2.5-flash",
+          "cost": {
+            "input_per_1k": 0.0001,
+            "output_per_1k": 0.0002
+          },
+          "features": [
+            "빠른 응답",
+            "효율적 처리",
+            "실시간 평가"
+          ]
+        }
+      ]
+    }
+  },
+  "default_settings": {
+    "temperature": 0.1,
+    "top_p": 0.95,
+    "frequency_penalty": 0,
+    "presence_penalty": 0,
+    "response_format": {
+      "type": "json_object"
+    }
+  },
+  "evaluation_mode": {
+    "multi_llm": true,
+    "min_providers": 2,
+    "fallback_to_single": true
+  },
+  "lastUpdated": "2025-08-17T12:26:03.728Z",
+  "version": "2.0"
+}
