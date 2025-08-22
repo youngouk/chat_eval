@@ -21,6 +21,7 @@ import {
   Settings,
   Camera,
   Image,
+  X,
 } from "lucide-react"
 import { EditableEvaluationContent } from "@/components/evaluation/EditableEvaluationContent"
 import { Button } from "@/components/ui/button"
@@ -2222,9 +2223,9 @@ export default function FintechFeedbackSystem() {
                                       <div className="flex justify-between items-start mb-3">
                                         <div>
                                           <h4 className="font-medium text-lg flex items-center gap-2">
-                                            {evaluation.counselor_name}
+                                            {evaluation.counselor_name || 'Unknown'}
                                             <Badge variant="outline" className="text-xs">
-                                              ID: {evaluation.counselor_id}
+                                              ID: {evaluation.counselor_id || 'N/A'}
                                             </Badge>
                                             {hasAdjustments && (
                                               <Badge variant="default" className="text-xs bg-blue-600">
@@ -2233,7 +2234,7 @@ export default function FintechFeedbackSystem() {
                                             )}
                                           </h4>
                                           <p className="text-sm text-gray-600">
-                                            분석 상담: {evaluation.total_chats_analyzed}건 | 평가일: {evaluation.evaluation_date}
+                                            분석 상담: {evaluation.total_chats_analyzed || 0}건 | 평가일: {evaluation.evaluation_date || 'Unknown'}
                                           </p>
                                         </div>
                                         <div className="text-right">
@@ -2278,17 +2279,17 @@ export default function FintechFeedbackSystem() {
                                         <div className="mt-4 p-3 bg-gray-50 rounded border">
                                           <h5 className="font-medium text-sm mb-2">📋 종합 피드백</h5>
                                           <div className="text-sm">
-                                            {evaluation.comprehensive_feedback.overall_comment && (
+                                            {evaluation.comprehensive_feedback?.overall_comment && (
                                               <div className="mb-2">
                                                 <strong>종합 평가:</strong> {evaluation.comprehensive_feedback.overall_comment}
                                               </div>
                                             )}
-                                            {evaluation.comprehensive_feedback.strengths && evaluation.comprehensive_feedback.strengths.length > 0 && (
+                                            {evaluation.comprehensive_feedback?.strengths && evaluation.comprehensive_feedback.strengths.length > 0 && (
                                               <div className="mb-2">
                                                 <strong>강점:</strong> {evaluation.comprehensive_feedback.strengths.join(', ')}
                                               </div>
                                             )}
-                                            {evaluation.comprehensive_feedback.weaknesses && evaluation.comprehensive_feedback.weaknesses.length > 0 && (
+                                            {evaluation.comprehensive_feedback?.weaknesses && evaluation.comprehensive_feedback.weaknesses.length > 0 && (
                                               <div className="mb-2">
                                                 <strong>개선점:</strong> {evaluation.comprehensive_feedback.weaknesses.join(', ')}
                                               </div>
