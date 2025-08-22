@@ -47,7 +47,9 @@ export function EditableEvaluationContent({ evaluation, modificationHistory, onS
   }
 
   const updateStrengths = (value: string) => {
-    const strengths = value.split('---').map(s => s.trim()).filter(s => s)
+    const strengths = value.split(/\n---\n|^---|---$/)
+      .map(s => s.trim())
+      .filter(s => s && s !== '---')
     setEditedData(prev => ({
       ...prev,
       comprehensive_feedback: {
@@ -58,7 +60,9 @@ export function EditableEvaluationContent({ evaluation, modificationHistory, onS
   }
 
   const updateWeaknesses = (value: string) => {
-    const weaknesses = value.split('---').map(s => s.trim()).filter(s => s)
+    const weaknesses = value.split(/\n---\n|^---|---$/)
+      .map(s => s.trim())
+      .filter(s => s && s !== '---')
     setEditedData(prev => ({
       ...prev,
       comprehensive_feedback: {
@@ -69,7 +73,9 @@ export function EditableEvaluationContent({ evaluation, modificationHistory, onS
   }
 
   const updatePriorities = (value: string) => {
-    const priorities = value.split('---').map(s => s.trim()).filter(s => s)
+    const priorities = value.split(/\n---\n|^---|---$/)
+      .map(s => s.trim())
+      .filter(s => s && s !== '---')
     setEditedData(prev => ({
       ...prev,
       comprehensive_feedback: {
