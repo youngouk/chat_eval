@@ -2184,7 +2184,7 @@ export default function FintechFeedbackSystem() {
                               아카이브 평가 결과 보기
                             </CardTitle>
                             <CardDescription className="text-blue-700">
-                              {viewingArchive.archiveInfo.filename} • {formatDate(viewingArchive.archiveInfo.uploadedAt)}
+                              {viewingArchive.archiveInfo?.filename || 'Unknown file'} • {viewingArchive.archiveInfo?.uploadedAt ? formatDate(viewingArchive.archiveInfo.uploadedAt) : 'Unknown date'}
                             </CardDescription>
                           </div>
                           <Button 
@@ -2211,7 +2211,7 @@ export default function FintechFeedbackSystem() {
                               
                               <div className="space-y-4 max-h-96 overflow-y-auto">
                                 {viewingArchive.data.counselorEvaluations.map((evaluation: any, index: number) => {
-                                  const currentScores = evaluation.adjusted_scores || evaluation.scores
+                                  const currentScores = evaluation.adjusted_scores || evaluation.scores || {}
                                   const hasAdjustments = !!evaluation.adjusted_scores
                                   
                                   return (
@@ -2238,12 +2238,12 @@ export default function FintechFeedbackSystem() {
                                         </div>
                                         <div className="text-right">
                                           <div className="text-2xl font-bold text-blue-600">
-                                            {currentScores.total_score.toFixed(2)}
+                                            {currentScores.total_score?.toFixed(2) || 'N/A'}
                                           </div>
                                           <div className="text-sm text-gray-500">
                                             / 5.00
                                           </div>
-                                          {hasAdjustments && (
+                                          {hasAdjustments && evaluation.scores?.total_score && (
                                             <div className="text-xs text-blue-600">
                                               원본: {evaluation.scores.total_score.toFixed(2)}
                                             </div>
@@ -2256,19 +2256,19 @@ export default function FintechFeedbackSystem() {
                                         <div className="bg-white p-3 rounded border">
                                           <h5 className="font-medium text-sm mb-2">💼 업무능력</h5>
                                           <div className="text-lg font-semibold text-green-600">
-                                            {currentScores.업무능력.subtotal.toFixed(2)}
+                                            {currentScores.업무능력?.subtotal?.toFixed(2) || 'N/A'}
                                           </div>
                                         </div>
                                         <div className="bg-white p-3 rounded border">
                                           <h5 className="font-medium text-sm mb-2">📝 문장력</h5>
                                           <div className="text-lg font-semibold text-blue-600">
-                                            {currentScores.문장력.subtotal.toFixed(2)}
+                                            {currentScores.문장력?.subtotal?.toFixed(2) || 'N/A'}
                                           </div>
                                         </div>
                                         <div className="bg-white p-3 rounded border">
                                           <h5 className="font-medium text-sm mb-2">🤝 기본 태도</h5>
                                           <div className="text-lg font-semibold text-purple-600">
-                                            {currentScores.기본_태도.subtotal.toFixed(2)}
+                                            {currentScores.기본_태도?.subtotal?.toFixed(2) || 'N/A'}
                                           </div>
                                         </div>
                                       </div>
