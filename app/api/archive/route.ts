@@ -88,7 +88,14 @@ export async function GET() {
     const archives = blobs
       .filter(
         (blob) =>
-          blob.pathname.includes("archive") || blob.pathname.includes("feedback") || blob.pathname.includes("chat"),
+          blob.pathname.includes("archive") || 
+          blob.pathname.includes("feedback") || 
+          blob.pathname.includes("chat") ||
+          blob.pathname.includes("counselor_evaluations") ||
+          blob.pathname.includes("uploaded_data") ||
+          blob.pathname.includes("종합평가결과") ||
+          blob.pathname.includes("test_") ||
+          blob.pathname.includes("comprehensive_evaluation"),
       )
       .map((blob) => ({
         id: blob.pathname,
