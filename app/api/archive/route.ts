@@ -13,10 +13,11 @@ export async function POST(request: NextRequest) {
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
     const finalFilename = filename || `${type}_archive_${timestamp}.json`
 
-    // Blob 토큰이 없거나 더미 토큰인 경우 시뮬레이션 모드
+    // Blob 토큰이 없거나 더미 토큰인 경우만 시뮬레이션 모드
     const isSimulationMode = !process.env.BLOB_READ_WRITE_TOKEN || 
                             process.env.BLOB_READ_WRITE_TOKEN.includes('dummy') ||
-                            process.env.BLOB_READ_WRITE_TOKEN === 'your-blob-token-here'
+                            process.env.BLOB_READ_WRITE_TOKEN === 'your-blob-token-here' ||
+                            process.env.BLOB_READ_WRITE_TOKEN.length < 20
     
     if (isSimulationMode) {
       return Response.json({
@@ -67,10 +68,11 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    // Blob 토큰이 없거나 더미 토큰인 경우 시뮬레이션 모드
+    // Blob 토큰이 없거나 더미 토큰인 경우만 시뮬레이션 모드
     const isSimulationMode = !process.env.BLOB_READ_WRITE_TOKEN || 
                             process.env.BLOB_READ_WRITE_TOKEN.includes('dummy') ||
-                            process.env.BLOB_READ_WRITE_TOKEN === 'your-blob-token-here'
+                            process.env.BLOB_READ_WRITE_TOKEN === 'your-blob-token-here' ||
+                            process.env.BLOB_READ_WRITE_TOKEN.length < 20
     
     if (isSimulationMode) {
       return Response.json({
@@ -116,10 +118,11 @@ export async function DELETE(request: NextRequest) {
     const filename = searchParams.get("filename")
     const deleteType = searchParams.get("type") // 'all', 'uploaded_data', 'individual_feedback', 'comprehensive_analysis'
 
-    // Blob 토큰이 없거나 더미 토큰인 경우 시뮬레이션 모드
+    // Blob 토큰이 없거나 더미 토큰인 경우만 시뮬레이션 모드
     const isSimulationMode = !process.env.BLOB_READ_WRITE_TOKEN || 
                             process.env.BLOB_READ_WRITE_TOKEN.includes('dummy') ||
-                            process.env.BLOB_READ_WRITE_TOKEN === 'your-blob-token-here'
+                            process.env.BLOB_READ_WRITE_TOKEN === 'your-blob-token-here' ||
+                            process.env.BLOB_READ_WRITE_TOKEN.length < 20
     
     if (isSimulationMode) {
       return Response.json({
