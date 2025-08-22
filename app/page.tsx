@@ -237,6 +237,7 @@ export default function FintechFeedbackSystem() {
   const evaluationResultsRef = useRef<HTMLDivElement>(null)
   const [isExportingPNG, setIsExportingPNG] = useState(false)
   const [isArchiving, setIsArchiving] = useState(false)
+  const [activeTab, setActiveTab] = useState("upload")
 
   // 환경 상태 확인 함수
   const checkEnvironment = async () => {
@@ -492,7 +493,7 @@ export default function FintechFeedbackSystem() {
         
         if (shouldRedirect) {
           // 아카이브 탭으로 이동
-          setActiveTab('archives')
+          setActiveTab('archive')
         }
       } else {
         throw new Error(result.error || '아카이브 저장에 실패했습니다.')
@@ -803,7 +804,7 @@ export default function FintechFeedbackSystem() {
           )}
         </div>
 
-        <Tabs defaultValue="upload" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="upload">📁 데이터 업로드 & 평가</TabsTrigger>
             <TabsTrigger value="results">📋 평가 결과</TabsTrigger>
