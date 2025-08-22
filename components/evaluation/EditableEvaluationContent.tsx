@@ -47,7 +47,7 @@ export function EditableEvaluationContent({ evaluation, modificationHistory, onS
   }
 
   const updateStrengths = (value: string) => {
-    const strengths = value.split('\n').filter(s => s.trim())
+    const strengths = value.split('---').map(s => s.trim()).filter(s => s)
     setEditedData(prev => ({
       ...prev,
       comprehensive_feedback: {
@@ -58,7 +58,7 @@ export function EditableEvaluationContent({ evaluation, modificationHistory, onS
   }
 
   const updateWeaknesses = (value: string) => {
-    const weaknesses = value.split('\n').filter(s => s.trim())
+    const weaknesses = value.split('---').map(s => s.trim()).filter(s => s)
     setEditedData(prev => ({
       ...prev,
       comprehensive_feedback: {
@@ -69,7 +69,7 @@ export function EditableEvaluationContent({ evaluation, modificationHistory, onS
   }
 
   const updatePriorities = (value: string) => {
-    const priorities = value.split('\n').filter(s => s.trim())
+    const priorities = value.split('---').map(s => s.trim()).filter(s => s)
     setEditedData(prev => ({
       ...prev,
       comprehensive_feedback: {
@@ -111,34 +111,37 @@ export function EditableEvaluationContent({ evaluation, modificationHistory, onS
         {/* 강점과 약점 편집 */}
         <div className="grid md:grid-cols-2 gap-4">
           <div className="bg-green-50 p-4 rounded-lg">
-            <h4 className="font-medium mb-3 text-green-800">💪 강점 (한 줄에 하나씩)</h4>
+            <h4 className="font-medium mb-3 text-green-800">💪 강점</h4>
+            <p className="text-xs text-green-700 mb-2">각 항목은 "---"로 구분하세요. 항목 내에서는 엔터키로 줄바꿈 가능합니다.</p>
             <Textarea
-              value={editedData.comprehensive_feedback.strengths.join('\n')}
+              value={editedData.comprehensive_feedback.strengths.join('\n---\n')}
               onChange={(e) => updateStrengths(e.target.value)}
               className="min-h-[120px] bg-white"
-              placeholder="강점을 한 줄에 하나씩 입력하세요..."
+              placeholder="강점을 입력하세요. 항목 구분은 --- 사용"
             />
           </div>
 
           <div className="bg-orange-50 p-4 rounded-lg">
-            <h4 className="font-medium mb-3 text-orange-800">🔧 개선점 (한 줄에 하나씩)</h4>
+            <h4 className="font-medium mb-3 text-orange-800">🔧 개선점</h4>
+            <p className="text-xs text-orange-700 mb-2">각 항목은 "---"로 구분하세요. 항목 내에서는 엔터키로 줄바꿈 가능합니다.</p>
             <Textarea
-              value={editedData.comprehensive_feedback.weaknesses.join('\n')}
+              value={editedData.comprehensive_feedback.weaknesses.join('\n---\n')}
               onChange={(e) => updateWeaknesses(e.target.value)}
               className="min-h-[120px] bg-white"
-              placeholder="개선점을 한 줄에 하나씩 입력하세요..."
+              placeholder="개선점을 입력하세요. 항목 구분은 --- 사용"
             />
           </div>
         </div>
 
         {/* 개선 우선순위 편집 */}
         <div className="bg-yellow-50 p-4 rounded-lg">
-          <h4 className="font-medium mb-3 text-yellow-800">🎯 개선 우선순위 (한 줄에 하나씩)</h4>
+          <h4 className="font-medium mb-3 text-yellow-800">🎯 개선 우선순위</h4>
+          <p className="text-xs text-yellow-700 mb-2">각 항목은 "---"로 구분하세요. 항목 내에서는 엔터키로 줄바꿈 가능합니다.</p>
           <Textarea
-            value={editedData.comprehensive_feedback.improvement_priorities.join('\n')}
+            value={editedData.comprehensive_feedback.improvement_priorities.join('\n---\n')}
             onChange={(e) => updatePriorities(e.target.value)}
             className="min-h-[80px] bg-white"
-            placeholder="개선 우선순위를 한 줄에 하나씩 입력하세요..."
+            placeholder="개선 우선순위를 입력하세요. 항목 구분은 --- 사용"
           />
         </div>
       </div>
