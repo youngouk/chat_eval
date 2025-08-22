@@ -22,6 +22,7 @@ import {
   Camera,
   Image,
 } from "lucide-react"
+import { EditableEvaluationContent } from "@/components/evaluation/EditableEvaluationContent"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -1345,56 +1346,38 @@ export default function FintechFeedbackSystem() {
                         </CardHeader>
                         <CardContent>
                           <div className="space-y-6">
-                            {/* 종합 코멘트 */}
-                            <div className="bg-blue-50 p-4 rounded-lg">
-                              <h4 className="font-medium mb-2 text-blue-800">💬 종합 평가</h4>
-                              <p className="text-sm text-blue-900">{evaluation.overall_comment}</p>
-                            </div>
-
-                            {/* 강점과 약점 */}
-                            <div className="grid md:grid-cols-2 gap-4">
-                              <div className="bg-green-50 p-4 rounded-lg">
-                                <h4 className="font-medium mb-3 text-green-800 flex items-center gap-2">
-                                  💪 강점 ({evaluation.comprehensive_feedback.strengths.length}개)
-                                </h4>
-                                <ul className="text-sm space-y-2">
-                                  {evaluation.comprehensive_feedback.strengths.map((strength, i) => (
-                                    <li key={i} className="flex items-start gap-2">
-                                      <span className="text-green-600 mt-1">•</span>
-                                      <span className="text-green-900">{strength}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-
-                              <div className="bg-orange-50 p-4 rounded-lg">
-                                <h4 className="font-medium mb-3 text-orange-800 flex items-center gap-2">
-                                  🔧 개선점 ({evaluation.comprehensive_feedback.weaknesses.length}개)
-                                </h4>
-                                <ul className="text-sm space-y-2">
-                                  {evaluation.comprehensive_feedback.weaknesses.map((weakness, i) => (
-                                    <li key={i} className="flex items-start gap-2">
-                                      <span className="text-orange-600 mt-1">•</span>
-                                      <span className="text-orange-900">{weakness}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            </div>
-
-                            {/* 개선 우선순위 */}
-                            {evaluation.comprehensive_feedback.improvement_priorities.length > 0 && (
-                              <div className="bg-yellow-50 p-4 rounded-lg">
-                                <h4 className="font-medium mb-3 text-yellow-800">🎯 개선 우선순위</h4>
-                                <div className="flex flex-wrap gap-2">
-                                  {evaluation.comprehensive_feedback.improvement_priorities.map((priority, i) => (
-                                    <Badge key={i} variant="outline" className="bg-yellow-100 text-yellow-800">
-                                      {i + 1}. {priority}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
+                            {/* EditableEvaluationContent 컴포넌트 사용 */}
+                            <EditableEvaluationContent 
+                              evaluation={{
+                                overall_comment: evaluation.overall_comment,
+                                comprehensive_feedback: evaluation.comprehensive_feedback
+                              }}
+                              modificationHistory={evaluation.modification_history}
+                              onSave={(updatedEvaluation) => {
+                                // 평가 내용 업데이트
+                                const updatedEvaluations = counselorEvaluations.map((evalItem) => {
+                                  if (evalItem.counselor_id === evaluation.counselor_id) {
+                                    return {
+                                      ...evalItem,
+                                      overall_comment: updatedEvaluation.overall_comment,
+                                      comprehensive_feedback: updatedEvaluation.comprehensive_feedback,
+                                      modification_history: [
+                                        ...(evalItem.modification_history || []),
+                                        {
+                                          timestamp: new Date().toISOString(),
+                                          type: "manual_edit" as const,
+                                          details: "평가 내용 수동 편집 (종합평가, 강점, 개선점)",
+                                          modified_by: "관리자"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                  return evalItem
+                                })
+                                setCounselorEvaluations(updatedEvaluations)
+                                setHasModifications(true)
+                              }}
+                            />
 
                             {/* 문제가 되는 상담 */}
                             {evaluation.problematic_chats && evaluation.problematic_chats.length > 0 && (
