@@ -486,7 +486,16 @@ export default function FintechFeedbackSystem() {
       const result = await response.json()
       
       if (result.success) {
-        const shouldRedirect = confirm(`✅ 평가 결과가 아카이브에 저장되었습니다.\n파일명: ${result.archive.filename}\n\n아카이브 페이지로 이동하시겠습니까?`)
+        let message = `✅ ${result.message}\n파일명: ${result.archive.filename}`
+        
+        // 시뮬레이션 모드인 경우 추가 안내
+        if (result.message.includes('시뮬레이션')) {
+          message += '\n\n⚠️ 실제 저장을 위해서는 Vercel Blob Storage 토큰 설정이 필요합니다.'
+        }
+        
+        message += '\n\n아카이브 페이지로 이동하시겠습니까?'
+        
+        const shouldRedirect = confirm(message)
         
         // 아카이브 목록 새로고침
         await loadArchives()

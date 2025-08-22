@@ -13,10 +13,12 @@ export async function POST(request: NextRequest) {
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
     const finalFilename = filename || `${type}_archive_${timestamp}.json`
 
-    // 로컬 개발 환경에서는 시뮬레이션된 응답 반환
-    if (process.env.NODE_ENV === 'development' && 
-        (!process.env.BLOB_READ_WRITE_TOKEN || 
-         process.env.BLOB_READ_WRITE_TOKEN.includes('dummy'))) {
+    // Blob 토큰이 없거나 더미 토큰인 경우 시뮬레이션 모드
+    const isSimulationMode = !process.env.BLOB_READ_WRITE_TOKEN || 
+                            process.env.BLOB_READ_WRITE_TOKEN.includes('dummy') ||
+                            process.env.BLOB_READ_WRITE_TOKEN === 'your-blob-token-here'
+    
+    if (isSimulationMode) {
       return Response.json({
         success: true,
         archive: {
@@ -28,7 +30,7 @@ export async function POST(request: NextRequest) {
           createdAt: timestamp,
           downloadUrl: `#local-dev-mode`
         },
-        message: `로컬 개발 환경: 데이터가 시뮬레이션으로 아카이빙되었습니다.`
+        message: `시뮬레이션 모드: 데이터가 임시로 아카이빙되었습니다. (Vercel Blob Storage 토큰 필요)`
       })
     }
 
@@ -65,15 +67,17 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    // 로컬 개발 환경에서 Blob 토큰이 유효하지 않은 경우 빈 배열 반환
-    if (process.env.NODE_ENV === 'development' && 
-        (!process.env.BLOB_READ_WRITE_TOKEN || 
-         process.env.BLOB_READ_WRITE_TOKEN.includes('dummy'))) {
+    // Blob 토큰이 없거나 더미 토큰인 경우 시뮬레이션 모드
+    const isSimulationMode = !process.env.BLOB_READ_WRITE_TOKEN || 
+                            process.env.BLOB_READ_WRITE_TOKEN.includes('dummy') ||
+                            process.env.BLOB_READ_WRITE_TOKEN === 'your-blob-token-here'
+    
+    if (isSimulationMode) {
       return Response.json({
         success: true,
         archives: [],
         total: 0,
-        message: "로컬 개발 환경: Vercel Blob 비활성화"
+        message: "시뮬레이션 모드: Vercel Blob Storage 토큰이 설정되지 않음"
       })
     }
 
@@ -112,13 +116,15 @@ export async function DELETE(request: NextRequest) {
     const filename = searchParams.get("filename")
     const deleteType = searchParams.get("type") // 'all', 'uploaded_data', 'individual_feedback', 'comprehensive_analysis'
 
-    // 로컬 개발 환경에서는 시뮬레이션된 응답 반환
-    if (process.env.NODE_ENV === 'development' && 
-        (!process.env.BLOB_READ_WRITE_TOKEN || 
-         process.env.BLOB_READ_WRITE_TOKEN.includes('dummy'))) {
+    // Blob 토큰이 없거나 더미 토큰인 경우 시뮬레이션 모드
+    const isSimulationMode = !process.env.BLOB_READ_WRITE_TOKEN || 
+                            process.env.BLOB_READ_WRITE_TOKEN.includes('dummy') ||
+                            process.env.BLOB_READ_WRITE_TOKEN === 'your-blob-token-here'
+    
+    if (isSimulationMode) {
       return Response.json({
         success: true,
-        message: `로컬 개발 환경: 아카이브 삭제가 시뮬레이션되었습니다.`
+        message: `시뮬레이션 모드: 아카이브 삭제가 시뮬레이션되었습니다.`
       })
     }
 
