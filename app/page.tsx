@@ -45,7 +45,7 @@ const MANAGER_NAMES: Record<string, string> = {
 }
 
 // 사용자 제공 원본 프롬프트 기반 + 5점 체계 적용
-const DEFAULT_GUIDELINES = `🧠 핀다 CX 상담 평가 AI 프롬프트 (v4.2 - 평가 대상 명확화)
+const DEFAULT_GUIDELINES = `🧠 핀다 CX 상담 평가 AI 프롬프트 (v1.1 - 평가 대상 명확화)
 
 🎯 CORE MISSION
 상담원별 전체 상담 데이터를 분석하여 평균 이하 상담 건에 대한 구체적 개선 피드백 제공
@@ -727,7 +727,7 @@ export default function FintechFeedbackSystem() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">🎯 핀다 상담 피드백 시스템 v4.2</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">🎯 핀다 상담 피드백 시스템 v1.1</h1>
           <p className="text-lg text-gray-600">상담원별 개별 평가 시스템</p>
 
           {/* 환경 상태 표시 */}
@@ -841,7 +841,7 @@ export default function FintechFeedbackSystem() {
                 <CardTitle className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Target className="w-5 h-5" />
-                    상담 평가 가이드라인 (v4.2)
+                    상담 평가 가이드라인 (v1.1)
                   </div>
                   <div className="flex gap-2">
                     {!isEditingGuidelines ? (
@@ -887,7 +887,7 @@ export default function FintechFeedbackSystem() {
                     <p className="text-xs text-gray-500">
                       {isEditingGuidelines
                         ? "⚠️ 수정 중입니다. 저장하면 다음 분석부터 적용됩니다."
-                        : "💡 v4.2 개선사항: 평가 대상을 '상담원 메시지'로 명확화하여 AI 정확도 향상"}
+                        : "💡 v1.1 개선사항: 평가 대상을 '상담원 메시지'로 명확화하여 AI 정확도 향상"}
                     </p>
                     {isEditingGuidelines && <div className="text-xs text-gray-500">{tempGuidelines.length} 문자</div>}
                   </div>
@@ -1885,7 +1885,7 @@ export default function FintechFeedbackSystem() {
 
                 {/* 평가 기준 */}
                 <div>
-                  <h3 className="font-semibold text-lg mb-3">📊 평가 기준 (v4.2)</h3>
+                  <h3 className="font-semibold text-lg mb-3">📊 평가 기준 (v1.1)</h3>
                   <div className="space-y-3">
                     <div className="bg-orange-50 p-3 rounded-lg">
                       <div className="flex justify-between items-center mb-2">

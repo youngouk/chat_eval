@@ -1046,7 +1046,7 @@ ROI:
 - [React Query - 서버 상태 관리](https://tanstack.com/query)
 
 ### 내부 문서
-- 평가 기준 가이드라인 v4.2
+- 평가 기준 가이드라인 v1.1
 - CX팀 상담 품질 관리 매뉴얼
 
 ---

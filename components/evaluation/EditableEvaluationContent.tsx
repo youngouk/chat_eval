@@ -193,7 +193,7 @@ export function EditableEvaluationContent({ evaluation, modificationHistory, onS
       {/* 종합 평가 */}
       <div className="bg-blue-50 p-4 rounded-lg">
         <h4 className="font-medium mb-2 text-blue-800">💬 종합 평가</h4>
-        <p className="text-sm text-blue-900">{evaluation.overall_comment}</p>
+        <p className="text-sm text-blue-900 whitespace-pre-wrap">{evaluation.overall_comment}</p>
       </div>
 
       {/* 강점과 약점 */}
@@ -206,7 +206,7 @@ export function EditableEvaluationContent({ evaluation, modificationHistory, onS
             {evaluation.comprehensive_feedback.strengths.map((strength, i) => (
               <li key={i} className="flex items-start gap-2">
                 <span className="text-green-600 mt-1">•</span>
-                <span className="text-green-900">{strength}</span>
+                <span className="text-green-900 whitespace-pre-wrap">{strength}</span>
               </li>
             ))}
           </ul>
@@ -220,7 +220,7 @@ export function EditableEvaluationContent({ evaluation, modificationHistory, onS
             {evaluation.comprehensive_feedback.weaknesses.map((weakness, i) => (
               <li key={i} className="flex items-start gap-2">
                 <span className="text-orange-600 mt-1">•</span>
-                <span className="text-orange-900">{weakness}</span>
+                <span className="text-orange-900 whitespace-pre-wrap">{weakness}</span>
               </li>
             ))}
           </ul>
@@ -231,13 +231,14 @@ export function EditableEvaluationContent({ evaluation, modificationHistory, onS
       {evaluation.comprehensive_feedback.improvement_priorities.length > 0 && (
         <div className="bg-yellow-50 p-4 rounded-lg">
           <h4 className="font-medium mb-3 text-yellow-800">🎯 개선 우선순위</h4>
-          <div className="flex flex-wrap gap-2">
+          <ol className="text-sm space-y-2">
             {evaluation.comprehensive_feedback.improvement_priorities.map((priority, i) => (
-              <Badge key={i} variant="outline" className="bg-yellow-100 text-yellow-800">
-                {i + 1}. {priority}
-              </Badge>
+              <li key={i} className="flex items-start gap-2">
+                <span className="text-yellow-700 font-medium">{i + 1}.</span>
+                <span className="text-yellow-900 whitespace-pre-wrap">{priority}</span>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
       )}
     </div>

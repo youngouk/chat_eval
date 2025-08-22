@@ -660,7 +660,7 @@ function generateHTMLReport(counselorEvaluations: any[]): string {
             </div>
             
             <div class="footer">
-                <p>© 2025 핀다 CX팀 상담 평가 시스템 v4.2 | 생성일: ${new Date().toLocaleString("ko-KR")}</p>
+                <p>© 2025 핀다 CX팀 상담 평가 시스템 v1.1 | 생성일: ${new Date().toLocaleString("ko-KR")}</p>
                 <p style="margin-top: 10px; font-size: 0.9rem; opacity: 0.8;">
                     이 보고서는 AI 기반 평가 시스템으로 생성되었으며, 수기 조정 내용이 반영되었습니다.
                 </p>
