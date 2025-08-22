@@ -238,6 +238,8 @@ export default function FintechFeedbackSystem() {
   const [isExportingPNG, setIsExportingPNG] = useState(false)
   const [isArchiving, setIsArchiving] = useState(false)
   const [activeTab, setActiveTab] = useState("upload")
+  const [viewingArchive, setViewingArchive] = useState<any>(null)
+  const [isLoadingArchiveData, setIsLoadingArchiveData] = useState(false)
 
   // 환경 상태 확인 함수
   const checkEnvironment = async () => {
@@ -513,6 +515,49 @@ export default function FintechFeedbackSystem() {
     } finally {
       setIsArchiving(false)
     }
+  }
+
+  // 아카이브 데이터 뷰어 함수
+  const viewArchiveData = async (archive: any) => {
+    setIsLoadingArchiveData(true)
+    
+    try {
+      const response = await fetch(archive.url)
+      const archiveData = await response.json()
+      
+      // 아카이브 데이터 구조에 따라 처리
+      if (archiveData.data && archiveData.data.counselorEvaluations) {
+        setViewingArchive({
+          ...archiveData,
+          archiveInfo: {
+            filename: archive.filename,
+            uploadedAt: archive.uploadedAt,
+            size: archive.size
+          }
+        })
+      } else {
+        // 구형 데이터 구조 처리
+        setViewingArchive({
+          data: { counselorEvaluations: archiveData },
+          archiveInfo: {
+            filename: archive.filename,
+            uploadedAt: archive.uploadedAt,
+            size: archive.size
+          }
+        })
+      }
+      
+    } catch (error) {
+      console.error('아카이브 데이터 로드 실패:', error)
+      alert(`❌ 아카이브 데이터를 불러올 수 없습니다.\n오류: ${error instanceof Error ? error.message : '알 수 없는 오류'}`)
+    } finally {
+      setIsLoadingArchiveData(false)
+    }
+  }
+
+  // 아카이브 뷰어 닫기
+  const closeArchiveViewer = () => {
+    setViewingArchive(null)
   }
 
   // 컴포넌트 마운트 시 아카이브 목록 및 모델 설정 로드
@@ -2101,9 +2146,23 @@ export default function FintechFeedbackSystem() {
                             </div>
                             <div className="flex gap-2">
                               <Button
+                                onClick={() => viewArchiveData(archive)}
+                                variant="outline"
+                                size="sm"
+                                disabled={isLoadingArchiveData}
+                                title="다시 확인하기"
+                              >
+                                {isLoadingArchiveData ? (
+                                  <RefreshCw className="w-3 h-3 animate-spin" />
+                                ) : (
+                                  <Eye className="w-3 h-3" />
+                                )}
+                              </Button>
+                              <Button
                                 onClick={() => window.open(archive.downloadUrl, "_blank")}
                                 variant="outline"
                                 size="sm"
+                                title="다운로드"
                               >
                                 <Download className="w-3 h-3" />
                               </Button>
@@ -2113,6 +2172,145 @@ export default function FintechFeedbackSystem() {
                       </div>
                     )}
                   </div>
+
+                  {/* 아카이브 뷰어 */}
+                  {viewingArchive && (
+                    <Card className="border-blue-200 bg-blue-50">
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <CardTitle className="flex items-center gap-2 text-blue-800">
+                              <Eye className="w-5 h-5" />
+                              아카이브 평가 결과 보기
+                            </CardTitle>
+                            <CardDescription className="text-blue-700">
+                              {viewingArchive.archiveInfo.filename} • {formatDate(viewingArchive.archiveInfo.uploadedAt)}
+                            </CardDescription>
+                          </div>
+                          <Button 
+                            onClick={closeArchiveViewer} 
+                            variant="ghost" 
+                            size="sm"
+                            className="text-blue-800 hover:text-blue-900"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="bg-white p-4 rounded-lg">
+                          {/* 아카이브된 평가 결과 표시 */}
+                          {viewingArchive.data?.counselorEvaluations && viewingArchive.data.counselorEvaluations.length > 0 ? (
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between border-b pb-2">
+                                <h3 className="font-semibold text-lg">상담원별 종합 평가 결과</h3>
+                                <Badge variant="outline" className="text-xs">
+                                  총 {viewingArchive.data.counselorEvaluations.length}명
+                                </Badge>
+                              </div>
+                              
+                              <div className="space-y-4 max-h-96 overflow-y-auto">
+                                {viewingArchive.data.counselorEvaluations.map((evaluation: any, index: number) => {
+                                  const currentScores = evaluation.adjusted_scores || evaluation.scores
+                                  const hasAdjustments = !!evaluation.adjusted_scores
+                                  
+                                  return (
+                                    <div 
+                                      key={evaluation.counselor_id || index}
+                                      className={`p-4 rounded-lg border ${hasAdjustments ? "border-blue-200 bg-blue-50" : "border-gray-200"}`}
+                                    >
+                                      <div className="flex justify-between items-start mb-3">
+                                        <div>
+                                          <h4 className="font-medium text-lg flex items-center gap-2">
+                                            {evaluation.counselor_name}
+                                            <Badge variant="outline" className="text-xs">
+                                              ID: {evaluation.counselor_id}
+                                            </Badge>
+                                            {hasAdjustments && (
+                                              <Badge variant="default" className="text-xs bg-blue-600">
+                                                수정됨
+                                              </Badge>
+                                            )}
+                                          </h4>
+                                          <p className="text-sm text-gray-600">
+                                            분석 상담: {evaluation.total_chats_analyzed}건 | 평가일: {evaluation.evaluation_date}
+                                          </p>
+                                        </div>
+                                        <div className="text-right">
+                                          <div className="text-2xl font-bold text-blue-600">
+                                            {currentScores.total_score.toFixed(2)}
+                                          </div>
+                                          <div className="text-sm text-gray-500">
+                                            / 5.00
+                                          </div>
+                                          {hasAdjustments && (
+                                            <div className="text-xs text-blue-600">
+                                              원본: {evaluation.scores.total_score.toFixed(2)}
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                      
+                                      {/* 상세 점수 표시 */}
+                                      <div className="grid md:grid-cols-3 gap-4">
+                                        <div className="bg-white p-3 rounded border">
+                                          <h5 className="font-medium text-sm mb-2">💼 업무능력</h5>
+                                          <div className="text-lg font-semibold text-green-600">
+                                            {currentScores.업무능력.subtotal.toFixed(2)}
+                                          </div>
+                                        </div>
+                                        <div className="bg-white p-3 rounded border">
+                                          <h5 className="font-medium text-sm mb-2">📝 문장력</h5>
+                                          <div className="text-lg font-semibold text-blue-600">
+                                            {currentScores.문장력.subtotal.toFixed(2)}
+                                          </div>
+                                        </div>
+                                        <div className="bg-white p-3 rounded border">
+                                          <h5 className="font-medium text-sm mb-2">🤝 기본 태도</h5>
+                                          <div className="text-lg font-semibold text-purple-600">
+                                            {currentScores.기본_태도.subtotal.toFixed(2)}
+                                          </div>
+                                        </div>
+                                      </div>
+                                      
+                                      {/* 종합 피드백이 있는 경우 */}
+                                      {evaluation.comprehensive_feedback && (
+                                        <div className="mt-4 p-3 bg-gray-50 rounded border">
+                                          <h5 className="font-medium text-sm mb-2">📋 종합 피드백</h5>
+                                          <div className="text-sm">
+                                            {evaluation.comprehensive_feedback.overall_comment && (
+                                              <div className="mb-2">
+                                                <strong>종합 평가:</strong> {evaluation.comprehensive_feedback.overall_comment}
+                                              </div>
+                                            )}
+                                            {evaluation.comprehensive_feedback.strengths && evaluation.comprehensive_feedback.strengths.length > 0 && (
+                                              <div className="mb-2">
+                                                <strong>강점:</strong> {evaluation.comprehensive_feedback.strengths.join(', ')}
+                                              </div>
+                                            )}
+                                            {evaluation.comprehensive_feedback.weaknesses && evaluation.comprehensive_feedback.weaknesses.length > 0 && (
+                                              <div className="mb-2">
+                                                <strong>개선점:</strong> {evaluation.comprehensive_feedback.weaknesses.join(', ')}
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="text-center py-8 text-gray-500">
+                              평가 데이터를 표시할 수 없습니다.
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
                 </div>
               </CardContent>
             </Card>
