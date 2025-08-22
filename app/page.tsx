@@ -236,6 +236,7 @@ export default function FintechFeedbackSystem() {
   // PNG 추출 관련
   const evaluationResultsRef = useRef<HTMLDivElement>(null)
   const [isExportingPNG, setIsExportingPNG] = useState(false)
+  const [isArchiving, setIsArchiving] = useState(false)
 
   // 환경 상태 확인 함수
   const checkEnvironment = async () => {
@@ -440,6 +441,67 @@ export default function FintechFeedbackSystem() {
       alert('PNG 추출에 실패했습니다. 다시 시도해주세요.')
     } finally {
       setIsExportingPNG(false)
+    }
+  }
+
+  // 아카이브 저장 함수
+  const saveToArchive = async () => {
+    if (!counselorEvaluations || counselorEvaluations.length === 0) {
+      alert('저장할 평가 결과가 없습니다.')
+      return
+    }
+
+    setIsArchiving(true)
+    
+    try {
+      const archiveData = {
+        timestamp: new Date().toISOString(),
+        type: 'comprehensive_evaluation',
+        data: {
+          counselorEvaluations,
+          uploadedFiles: uploadedFiles?.map(f => ({ name: f.name, size: f.size })),
+          evaluationSettings: {
+            modelsUsed: Object.keys(modelConfig).filter(k => modelConfig[k].enabled),
+            evaluationDate: new Date().toLocaleString('ko-KR')
+          }
+        },
+        metadata: {
+          totalCounselors: counselorEvaluations.length,
+          averageScore: (counselorEvaluations.reduce((sum, evaluation) => sum + (evaluation.adjusted_scores || evaluation.scores).total_score, 0) / counselorEvaluations.length).toFixed(2),
+          hasModifications: hasModifications
+        }
+      }
+
+      const response = await fetch('/api/archive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'comprehensive_evaluation',
+          data: archiveData,
+          filename: `종합평가결과_${new Date().toISOString().split('T')[0]}_${Date.now()}.json`
+        })
+      })
+
+      const result = await response.json()
+      
+      if (result.success) {
+        const shouldRedirect = confirm(`✅ 평가 결과가 아카이브에 저장되었습니다.\n파일명: ${result.archive.filename}\n\n아카이브 페이지로 이동하시겠습니까?`)
+        
+        // 아카이브 목록 새로고침
+        await loadArchives()
+        
+        if (shouldRedirect) {
+          // 아카이브 탭으로 이동
+          setActiveTab('archives')
+        }
+      } else {
+        throw new Error(result.error || '아카이브 저장에 실패했습니다.')
+      }
+    } catch (error) {
+      console.error('아카이브 저장 실패:', error)
+      alert(`❌ 아카이브 저장에 실패했습니다.\n오류: ${error instanceof Error ? error.message : '알 수 없는 오류'}`)
+    } finally {
+      setIsArchiving(false)
     }
   }
 
@@ -1163,6 +1225,24 @@ export default function FintechFeedbackSystem() {
                     >
                       <Download className="w-4 h-4" />
                       JSON 다운로드
+                    </Button>
+                    <Button
+                      onClick={saveToArchive}
+                      disabled={isArchiving}
+                      variant="outline"
+                      className="gap-2 bg-transparent"
+                    >
+                      {isArchiving ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          저장 중...
+                        </>
+                      ) : (
+                        <>
+                          <Archive className="w-4 h-4" />
+                          아카이브에 저장
+                        </>
+                      )}
                     </Button>
                   </div>
                 </div>
