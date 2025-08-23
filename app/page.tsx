@@ -23,9 +23,13 @@ import {
   Image,
   X,
   Trash2,
+  ChevronDown,
+  ChevronUp,
+  AlertCircle,
 } from "lucide-react"
 import { EditableEvaluationContent } from "@/components/evaluation/EditableEvaluationContent"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -243,6 +247,12 @@ export default function FintechFeedbackSystem() {
   const [viewingArchive, setViewingArchive] = useState<any>(null)
   const [isLoadingArchiveData, setIsLoadingArchiveData] = useState(false)
   const [deletingArchiveId, setDeletingArchiveId] = useState<string | null>(null)
+  
+  // UI 접기/펼치기 상태
+  const [isGuidelineCollapsed, setIsGuidelineCollapsed] = useState(false)
+  const [counselorCollapsedState, setCounselorCollapsedState] = useState<{ [key: string]: boolean }>({})
+  const [showSystemInfo, setShowSystemInfo] = useState(false)
+  const [showAISettings, setShowAISettings] = useState(false)
 
   // 환경 상태 확인 함수
   const checkEnvironment = async () => {
@@ -880,15 +890,47 @@ export default function FintechFeedbackSystem() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">🎯 핀다 상담 피드백 시스템 v1.1</h1>
-          <p className="text-lg text-gray-600">상담원별 개별 평가 시스템</p>
+        <div className="mb-8">
+          <div className="flex justify-between items-start">
+            <div className="text-center flex-1">
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">🎯 핀다 상담 피드백 시스템 v1.1</h1>
+              <p className="text-lg text-gray-600">상담원별 개별 평가 시스템</p>
 
-          {/* 환경 상태 표시 */}
-          {environmentStatus && (
-            <div className="mt-2">
-              <Badge variant={environmentStatus.includes("✅") ? "default" : "destructive"}>{environmentStatus}</Badge>
-              <Button onClick={checkEnvironment} variant="ghost" size="sm" className="ml-2">
+              {/* 환경 상태 표시 */}
+              {environmentStatus && (
+                <div className="mt-2">
+                  <Badge variant={environmentStatus.includes("✅") ? "default" : "destructive"}>{environmentStatus}</Badge>
+                  <Button onClick={checkEnvironment} variant="ghost" size="sm" className="ml-2">
+                    <RefreshCw className="w-3 h-3" />
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setShowSystemInfo(!showSystemInfo)}
+                variant="outline"
+                size="sm"
+                className="gap-2"
+              >
+                <Bot className="w-4 h-4" />
+                시스템 정보
+              </Button>
+              <Button
+                onClick={() => setShowAISettings(!showAISettings)}
+                variant="outline"
+                size="sm"
+                className="gap-2"
+              >
+                <Settings className="w-4 h-4" />
+                AI 설정
+              </Button>
+            </div>
+          </div>
+          {tempStorageStatus && (
+            <div className="flex items-center justify-center gap-2 mt-2">
+              <div className="text-sm text-green-600 font-medium">{tempStorageStatus}</div>
+              <Button onClick={() => setTempStorageStatus("")} variant="ghost" size="sm" className="h-6 px-2">
                 <RefreshCw className="w-3 h-3" />
               </Button>
             </div>
@@ -896,12 +938,10 @@ export default function FintechFeedbackSystem() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="upload">📁 데이터 업로드 & 평가</TabsTrigger>
             <TabsTrigger value="results">📋 평가 결과</TabsTrigger>
-            <TabsTrigger value="system-info">ℹ️ 시스템 정보</TabsTrigger>
             <TabsTrigger value="archive">📦 아카이브</TabsTrigger>
-            <TabsTrigger value="settings">⚙️ AI 모델 설정</TabsTrigger>
           </TabsList>
 
           {/* 데이터 업로드 & 평가 통합 탭 */}
@@ -921,15 +961,15 @@ export default function FintechFeedbackSystem() {
               <CardContent>
                 <div className="space-y-4">
                   <div
-                    className="border-2 border-dashed border-blue-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-400 transition-colors"
+                    className="border-2 border-dashed border-blue-300 rounded-lg p-4 text-center cursor-pointer hover:border-blue-400 transition-colors"
                     onClick={() => document.getElementById("fileInput")?.click()}
                   >
-                    <div className="flex justify-center gap-4 mb-4">
-                      <FileText className="w-12 h-12 text-blue-500" />
-                      <FileSpreadsheet className="w-12 h-12 text-green-500" />
+                    <div className="flex justify-center gap-4 mb-2">
+                      <FileText className="w-8 h-8 text-blue-500" />
+                      <FileSpreadsheet className="w-8 h-8 text-green-500" />
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">CSV 또는 Excel 파일을 선택하거나 드래그하세요</h3>
-                    <p className="text-gray-600">
+                    <h3 className="text-base font-semibold mb-1">CSV 또는 Excel 파일을 선택하거나 드래그하세요</h3>
+                    <p className="text-sm text-gray-600">
                       CSV: user_data.csv, user_chat_data.csv, message_data.csv
                       <br />
                       Excel: 3개 시트가 포함된 하나의 파일
@@ -993,10 +1033,18 @@ export default function FintechFeedbackSystem() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setIsGuidelineCollapsed(!isGuidelineCollapsed)}
+                    className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                  >
                     <Target className="w-5 h-5" />
                     상담 평가 가이드라인 (v1.1)
-                  </div>
+                    {isGuidelineCollapsed ? (
+                      <ChevronDown className="w-4 h-4" />
+                    ) : (
+                      <ChevronUp className="w-4 h-4" />
+                    )}
+                  </button>
                   <div className="flex gap-2">
                     {!isEditingGuidelines ? (
                       <>
@@ -1025,28 +1073,30 @@ export default function FintechFeedbackSystem() {
                   업데이트되었습니다.
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div>
-                  <Label htmlFor="guidelines">상담 가이드라인</Label>
-                  <Textarea
-                    id="guidelines"
-                    rows={30}
-                    value={isEditingGuidelines ? tempGuidelines : guidelines}
-                    onChange={(e) => isEditingGuidelines && setTempGuidelines(e.target.value)}
-                    readOnly={!isEditingGuidelines}
-                    className={`text-sm ${isEditingGuidelines ? "bg-white border-blue-300" : "bg-gray-50"}`}
-                    placeholder="상담 가이드라인을 입력하세요..."
-                  />
-                  <div className="flex justify-between items-center mt-2">
-                    <p className="text-xs text-gray-500">
-                      {isEditingGuidelines
-                        ? "⚠️ 수정 중입니다. 저장하면 다음 분석부터 적용됩니다."
-                        : "💡 v1.1 개선사항: 평가 대상을 '상담원 메시지'로 명확화하여 AI 정확도 향상"}
-                    </p>
-                    {isEditingGuidelines && <div className="text-xs text-gray-500">{tempGuidelines.length} 문자</div>}
+              {!isGuidelineCollapsed && (
+                <CardContent>
+                  <div>
+                    <Label htmlFor="guidelines">상담 가이드라인</Label>
+                    <Textarea
+                      id="guidelines"
+                      rows={15}
+                      value={isEditingGuidelines ? tempGuidelines : guidelines}
+                      onChange={(e) => isEditingGuidelines && setTempGuidelines(e.target.value)}
+                      readOnly={!isEditingGuidelines}
+                      className={`text-sm ${isEditingGuidelines ? "bg-white border-blue-300" : "bg-gray-50"}`}
+                      placeholder="상담 가이드라인을 입력하세요..."
+                    />
+                    <div className="flex justify-between items-center mt-2">
+                      <p className="text-xs text-gray-500">
+                        {isEditingGuidelines
+                          ? "⚠️ 수정 중입니다. 저장하면 다음 분석부터 적용됩니다."
+                          : "💡 v1.1 개선사항: 평가 대상을 '상담원 메시지'로 명확화하여 AI 정확도 향상"}
+                      </p>
+                      {isEditingGuidelines && <div className="text-xs text-gray-500">{tempGuidelines.length} 문자</div>}
+                    </div>
                   </div>
-                </div>
-              </CardContent>
+                </CardContent>
+              )}
             </Card>
 
             {/* 상담원별 평가 섹션 - 업로드 탭에 통합 */}
@@ -1485,22 +1535,35 @@ export default function FintechFeedbackSystem() {
                       >
                         <CardHeader>
                           <div className="flex justify-between items-center">
-                            <div>
-                              <h3 className="font-semibold text-lg flex items-center gap-2">
-                                {evaluation.counselor_name}
-                                <Badge variant="outline" className="text-xs">
-                                  ID: {evaluation.counselor_id}
-                                </Badge>
-                                {hasAdjustments && (
-                                  <Badge variant="default" className="text-xs bg-blue-600">
+                            <button
+                              onClick={() => setCounselorCollapsedState(prev => ({
+                                ...prev,
+                                [evaluation.counselor_id]: !prev[evaluation.counselor_id]
+                              }))}
+                              className="flex-1 text-left"
+                            >
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-semibold text-lg flex items-center gap-2">
+                                  {evaluation.counselor_name}
+                                  <Badge variant="outline" className="text-xs">
+                                    ID: {evaluation.counselor_id}
+                                  </Badge>
+                                  {hasAdjustments && (
+                                    <Badge variant="default" className="text-xs bg-blue-600">
                                     수정됨
                                   </Badge>
                                 )}
-                              </h3>
-                              <p className="text-sm text-gray-600">
-                                분석 상담: {evaluation.total_chats_analyzed}건 | 평가일: {evaluation.evaluation_date}
-                              </p>
-                            </div>
+                                  {counselorCollapsedState[evaluation.counselor_id] ? (
+                                    <ChevronDown className="w-4 h-4 ml-2" />
+                                  ) : (
+                                    <ChevronUp className="w-4 h-4 ml-2" />
+                                  )}
+                                </h3>
+                                <p className="text-sm text-gray-600">
+                                  분석 상담: {evaluation.total_chats_analyzed}건 | 평가일: {evaluation.evaluation_date}
+                                </p>
+                              </div>
+                            </button>
                             <div className="text-right">
                               <div className={`text-3xl font-bold ${getScoreColor(currentScores.total_score)}`}>
                                 {currentScores.total_score.toFixed(2)}
@@ -1516,8 +1579,9 @@ export default function FintechFeedbackSystem() {
                             </div>
                           </div>
                         </CardHeader>
-                        <CardContent>
-                          <div className="space-y-6">
+                        {!counselorCollapsedState[evaluation.counselor_id] && (
+                          <CardContent>
+                            <div className="space-y-6">
                             {/* EditableEvaluationContent 컴포넌트 사용 */}
                             <EditableEvaluationContent 
                               evaluation={{
@@ -1843,8 +1907,9 @@ export default function FintechFeedbackSystem() {
                                 )}
                               </div>
                             )}
-                          </div>
-                        </CardContent>
+                            </div>
+                          </CardContent>
+                        )}
                       </Card>
                     )
                   })}
@@ -1854,287 +1919,6 @@ export default function FintechFeedbackSystem() {
           </TabsContent>
 
           {/* 시스템 정보 탭 */}
-          <TabsContent value="system-info" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bot className="w-5 h-5" />
-                  Multi-LLM 평가 시스템 정보
-                </CardTitle>
-                <CardDescription>
-                  현재 평가 시스템의 구조와 사용되는 AI 모델 정보를 확인합니다.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* 시스템 아키텍처 */}
-                <div>
-                  <h3 className="font-semibold text-lg mb-3">🏗️ 시스템 아키텍처</h3>
-                  <div className="bg-blue-50 p-4 rounded-lg space-y-3">
-                    <div>
-                      <h4 className="font-medium text-blue-800 mb-2">5-Layer Clean Architecture</h4>
-                      <ul className="text-sm space-y-1 text-gray-700">
-                        <li>• <strong>Domain Layer:</strong> 핵심 비즈니스 로직 (평가 기준, 점수 계산)</li>
-                        <li>• <strong>Application Layer:</strong> 유즈케이스 구현 (평가 서비스, 오케스트레이션)</li>
-                        <li>• <strong>Infrastructure Layer:</strong> AI Provider 통합 (OpenAI, Gemini)</li>
-                        <li>• <strong>Interface Layer:</strong> API 엔드포인트 (REST API)</li>
-                        <li>• <strong>Presentation Layer:</strong> Next.js UI (React 컴포넌트)</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
-                {/* AI 모델 정보 - 실시간 모델 설정에서 가져오기 */}
-                <div>
-                  <h3 className="font-semibold text-lg mb-3">🤖 현재 설정된 AI 모델</h3>
-                  {isLoadingModelConfig ? (
-                    <div className="flex items-center justify-center py-8">
-                      <RefreshCw className="w-6 h-6 animate-spin mr-2" />
-                      <span>모델 설정을 불러오는 중...</span>
-                    </div>
-                  ) : modelConfig ? (
-                    <div className="space-y-4">
-                      {/* Multi-LLM 모드 상태 */}
-                      <div className="bg-blue-50 p-4 rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Settings className="w-5 h-5 text-blue-600" />
-                          <h4 className="font-medium text-blue-800">평가 모드</h4>
-                        </div>
-                        <p className="text-sm text-blue-700">
-                          <strong>Multi-LLM 모드:</strong> {modelConfig.evaluation_mode?.multi_llm ? "✅ 활성화" : "❌ 비활성화"}
-                          {modelConfig.evaluation_mode?.multi_llm && (
-                            <span className="ml-2">
-                              (활성 모델: {Object.entries(modelConfig.providers).filter(([_, provider]: [string, any]) => provider.enabled).length}개)
-                            </span>
-                          )}
-                        </p>
-                      </div>
-
-                      {/* 활성화된 모델들 */}
-                      <div className="grid gap-4">
-                        {Object.entries(modelConfig.providers)
-                          .filter(([_, provider]: [string, any]) => provider.enabled)
-                          .map(([providerId, providerConfig]: [string, any]) => {
-                            const modelInfo = {
-                              'openai-gpt5': {
-                                name: 'GPT-5-mini',
-                                color: 'green',
-                                description: 'OpenAI의 최신 GPT-5-mini 모델',
-                                features: ['Responses API', 'Chain of Thought', '고성능 추론'],
-                                pricing: '입력: $0.15/1M, 출력: $0.60/1M 토큰',
-                                tokenLimit: '128,000 토큰'
-                              },
-                              'gemini-25': {
-                                name: 'Gemini 2.5',
-                                color: 'purple',
-                                description: 'Google의 Gemini 2.5 Pro/Flash 모델',
-                                features: ['빠른 응답', '문화적 감수성', '다각적 관점'],
-                                pricing: providerConfig.model?.includes('pro') 
-                                  ? '입력: $0.0005/1K, 출력: $0.001/1K 토큰'
-                                  : '입력: $0.0001/1K, 출력: $0.0002/1K 토큰',
-                                tokenLimit: '1,000,000 토큰'
-                              },
-                              'openai': {
-                                name: 'GPT-4',
-                                color: 'orange',
-                                description: '레거시 GPT-4 모델',
-                                features: ['검증된 성능', '안정성', '호환성'],
-                                pricing: '입력: $2.50/1M, 출력: $10.00/1M 토큰',
-                                tokenLimit: '128,000 토큰'
-                              }
-                            }
-
-                            const info = modelInfo[providerId as keyof typeof modelInfo]
-                            const bgColor = info?.color === 'green' ? 'bg-green-50' : 
-                                           info?.color === 'purple' ? 'bg-purple-50' : 'bg-orange-50'
-                            const textColor = info?.color === 'green' ? 'text-green-800' : 
-                                             info?.color === 'purple' ? 'text-purple-800' : 'text-orange-800'
-
-                            return (
-                              <div key={providerId} className={`${bgColor} p-4 rounded-lg`}>
-                                <h4 className={`font-medium ${textColor} mb-2 flex items-center gap-2`}>
-                                  <CheckCircle className="w-4 h-4" />
-                                  {info?.name} - {providerConfig.model}
-                                </h4>
-                                <ul className="text-sm space-y-1 text-gray-700">
-                                  <li>• <strong>설명:</strong> {info?.description}</li>
-                                  <li>• <strong>특징:</strong> {info?.features?.join(', ')}</li>
-                                  <li>• <strong>토큰 한도:</strong> {info?.tokenLimit}</li>
-                                  <li>• <strong>비용:</strong> {info?.pricing}</li>
-                                  <li>• <strong>Temperature:</strong> {providerConfig.temperature}</li>
-                                  {providerId === 'openai-gpt5' && (
-                                    <>
-                                      <li>• <strong>Reasoning Effort:</strong> {providerConfig.reasoningEffort || 'medium'}</li>
-                                      <li>• <strong>Verbosity:</strong> {providerConfig.verbosity || 'medium'}</li>
-                                    </>
-                                  )}
-                                  {providerId === 'gemini-25' && (
-                                    <>
-                                      <li>• <strong>Top-P:</strong> {providerConfig.top_p || 0.95}</li>
-                                      <li>• <strong>Top-K:</strong> {providerConfig.top_k || 40}</li>
-                                    </>
-                                  )}
-                                  <li>• <strong>상태:</strong> {environmentStatus.includes("✅") ? "✅ API 연결 정상" : "⚠️ API 키 확인 필요"}</li>
-                                </ul>
-                              </div>
-                            )
-                          })}
-                      </div>
-
-                      {/* 비활성화된 모델들 */}
-                      {Object.entries(modelConfig.providers).some(([_, provider]: [string, any]) => !provider.enabled) && (
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                          <h4 className="font-medium text-gray-700 mb-2">⭕ 비활성화된 모델</h4>
-                          <div className="flex flex-wrap gap-2">
-                            {Object.entries(modelConfig.providers)
-                              .filter(([_, provider]: [string, any]) => !provider.enabled)
-                              .map(([providerId, providerConfig]: [string, any]) => (
-                                <Badge key={providerId} variant="secondary" className="bg-gray-200 text-gray-600">
-                                  {providerId === 'openai-gpt5' ? 'GPT-5-mini' : 
-                                   providerId === 'gemini-25' ? 'Gemini 2.5' : 
-                                   providerId === 'openai' ? 'GPT-4' : providerId}
-                                </Badge>
-                              ))}
-                          </div>
-                          <p className="text-xs text-gray-600 mt-2">
-                            비활성화된 모델은 평가에 사용되지 않습니다. "⚙️ AI 모델 설정" 탭에서 활성화할 수 있습니다.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="bg-red-50 p-4 rounded-lg">
-                      <p className="text-red-800">⚠️ 모델 설정을 불러올 수 없습니다.</p>
-                      <Button onClick={loadModelConfig} variant="outline" size="sm" className="mt-2">
-                        다시 시도
-                      </Button>
-                    </div>
-                  )}
-                </div>
-
-                {/* 평가 프로세스 */}
-                <div>
-                  <h3 className="font-semibold text-lg mb-3">⚙️ 평가 프로세스</h3>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <ol className="space-y-3">
-                      <li className="flex items-start gap-3">
-                        <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">1</span>
-                        <div>
-                          <strong>데이터 수집</strong>
-                          <p className="text-sm text-gray-600">CSV/Excel 파일에서 상담 데이터 추출</p>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">2</span>
-                        <div>
-                          <strong>전처리</strong>
-                          <p className="text-sm text-gray-600">자동 메시지 제거, 상담원 메시지 필터링</p>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">3</span>
-                        <div>
-                          <strong>Multi-LLM 평가</strong>
-                          <p className="text-sm text-gray-600">여러 AI 모델을 통한 동시 평가</p>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">4</span>
-                        <div>
-                          <strong>결과 종합</strong>
-                          <p className="text-sm text-gray-600">평균 점수 계산, 신뢰도 검증</p>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">5</span>
-                        <div>
-                          <strong>피드백 생성</strong>
-                          <p className="text-sm text-gray-600">개선점 및 우선순위 도출</p>
-                        </div>
-                      </li>
-                    </ol>
-                  </div>
-                </div>
-
-                {/* 평가 기준 */}
-                <div>
-                  <h3 className="font-semibold text-lg mb-3">📊 평가 기준 (v1.1)</h3>
-                  <div className="space-y-3">
-                    <div className="bg-orange-50 p-3 rounded-lg">
-                      <div className="flex justify-between items-center mb-2">
-                        <strong className="text-orange-800">업무능력 (60%)</strong>
-                        <Badge variant="outline" className="bg-orange-100">60점</Badge>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div>• 고객 질문 내용 파악: 15%</div>
-                        <div>• 파악 및 해결 적극성: 10%</div>
-                        <div>• 답변의 정확성 및 적합성: 15%</div>
-                        <div>• 도메인 전문성: 5%</div>
-                        <div>• 신속한 응대: 10%</div>
-                        <div>• 상황 공감: 5%</div>
-                      </div>
-                    </div>
-                    <div className="bg-yellow-50 p-3 rounded-lg">
-                      <div className="flex justify-between items-center mb-2">
-                        <strong className="text-yellow-800">문장력 (25%)</strong>
-                        <Badge variant="outline" className="bg-yellow-100">25점</Badge>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div>• 정확한 맞춤법: 5%</div>
-                        <div>• 적절한 언어 표현: 5%</div>
-                        <div>• 쉬운 표현 사용: 10%</div>
-                        <div>• 단계별 안내: 5%</div>
-                      </div>
-                    </div>
-                    <div className="bg-green-50 p-3 rounded-lg">
-                      <div className="flex justify-between items-center mb-2">
-                        <strong className="text-green-800">기본 태도 (15%)</strong>
-                        <Badge variant="outline" className="bg-green-100">15점</Badge>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div>• 인사 및 추가 문의: 10%</div>
-                        <div>• 양해 표현 사용: 5%</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 시스템 특징 */}
-                <div>
-                  <h3 className="font-semibold text-lg mb-3">✨ 시스템 특징</h3>
-                  <div className="grid md:grid-cols-2 gap-3">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                      <div>
-                        <strong className="text-sm">Multi-LLM 검증</strong>
-                        <p className="text-xs text-gray-600">여러 AI 모델로 교차 검증하여 정확도 향상</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                      <div>
-                        <strong className="text-sm">실시간 스트리밍</strong>
-                        <p className="text-xs text-gray-600">평가 진행 상황을 실시간으로 확인</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                      <div>
-                        <strong className="text-sm">자동 아카이빙</strong>
-                        <p className="text-xs text-gray-600">평가 결과 자동 저장 및 버전 관리</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                      <div>
-                        <strong className="text-sm">수기 조정 가능</strong>
-                        <p className="text-xs text-gray-600">AI 평가 결과 수동 보정 지원</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           {/* 아카이브 탭 */}
           <TabsContent value="archive" className="space-y-6">
@@ -2368,344 +2152,326 @@ export default function FintechFeedbackSystem() {
           </TabsContent>
 
           {/* AI 모델 설정 탭 */}
-          <TabsContent value="settings" className="space-y-6">
-            {/* 성공/오류 메시지 */}
-            {modelConfigSuccess && (
-              <Alert className="border-green-200 bg-green-50">
-                <CheckCircle className="h-4 w-4" />
-                <AlertDescription className="text-green-800">{modelConfigSuccess}</AlertDescription>
-              </Alert>
-            )}
+        </Tabs>
 
-            {modelConfigError && (
-              <Alert className="border-red-200 bg-red-50">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription className="text-red-800">{modelConfigError}</AlertDescription>
-              </Alert>
-            )}
-
-            {/* 전역 설정 */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="w-5 h-5" />
-                  평가 모드 설정
-                </CardTitle>
-                <CardDescription>
-                  Multi-LLM 평가 모드를 활성화하면 여러 AI 모델을 동시에 사용하여 더 정확한 평가를 수행합니다.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isLoadingModelConfig ? (
-                  <div className="flex items-center justify-center py-8">
-                    <RefreshCw className="w-6 h-6 animate-spin mr-2" />
-                    <span>설정을 불러오는 중...</span>
-                  </div>
-                ) : modelConfig ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label className="text-base font-medium">Multi-LLM 평가</Label>
-                        <p className="text-sm text-gray-600 mt-1">
-                          여러 AI 모델을 동시에 사용하여 더 정확한 평가를 수행합니다.
-                        </p>
-                      </div>
-                      <Switch 
-                        checked={modelConfig.evaluation_mode?.multi_llm || false}
-                        onCheckedChange={toggleMultiLLM}
-                      />
+        {/* System Info Modal */}
+        {showSystemInfo && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto">
+              <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <Bot className="w-5 h-5" />
+                  Multi-LLM 평가 시스템 정보
+                </h2>
+                <Button
+                  onClick={() => setShowSystemInfo(false)}
+                  variant="ghost"
+                  size="sm"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="p-6 space-y-6">
+                {/* 시스템 아키텍처 */}
+                <div>
+                  <h3 className="font-semibold text-lg mb-3">🏗️ 시스템 아키텍처</h3>
+                  <div className="bg-blue-50 p-4 rounded-lg space-y-3">
+                    <div>
+                      <h4 className="font-medium text-blue-800 mb-2">5-Layer Clean Architecture</h4>
+                      <ul className="text-sm space-y-1 text-gray-700">
+                        <li>• <strong>Domain Layer:</strong> 핵심 비즈니스 로직 (평가 기준, 점수 계산)</li>
+                        <li>• <strong>Application Layer:</strong> 유즈케이스 구현 (평가 서비스, 오케스트레이션)</li>
+                        <li>• <strong>Infrastructure Layer:</strong> AI Provider 통합 (OpenAI, Gemini)</li>
+                        <li>• <strong>Interface Layer:</strong> API 엔드포인트 (REST API)</li>
+                        <li>• <strong>Presentation Layer:</strong> Next.js UI (React 컴포넌트)</li>
+                      </ul>
                     </div>
-                    
-                    {modelConfig.evaluation_mode?.multi_llm && (
-                      <div className="bg-blue-50 p-4 rounded-lg">
-                        <p className="text-sm text-blue-800">
-                          <strong>활성화된 모델:</strong> {Object.entries(modelConfig.providers).filter(([_, provider]: [string, any]) => provider.enabled).length}개
-                        </p>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {Object.entries(modelConfig.providers).filter(([_, provider]: [string, any]) => provider.enabled).map(([id, provider]: [string, any]) => (
-                            <Badge key={id} variant="secondary" className="bg-blue-100 text-blue-800">
-                              {id === 'openai-gpt5' ? 'GPT-5-mini' : 
-                               id === 'gemini-25' ? 'Gemini 2.5' : 
-                               id === 'openai' ? 'GPT-4' : id} - {provider.model}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    설정을 불러올 수 없습니다.
-                    <Button onClick={loadModelConfig} variant="outline" size="sm" className="ml-2">
-                      다시 시도
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* AI 모델 설정 */}
-            {modelConfig && (
-              <>
-                {Object.entries(modelConfig.providers).map(([providerId, providerConfig]: [string, any]) => {
-                  const modelInfo = {
-                    'openai-gpt5': {
-                      name: 'GPT-5-mini',
-                      icon: <Bot className="w-4 h-4" />,
-                      description: 'OpenAI의 최신 GPT-5-mini 모델 (Responses API)',
-                      features: ['고성능 추론', '비용 효율적', 'CoT 지원']
-                    },
-                    'gemini-25': {
-                      name: 'Gemini 2.5',
-                      icon: <Target className="w-4 h-4" />,
-                      description: 'Google의 Gemini 2.5 Pro/Flash 모델',
-                      features: ['빠른 처리', '문화적 감수성', '다각적 관점']
-                    },
-                    'openai': {
-                      name: 'GPT-4',
-                      icon: <MessageSquare className="w-4 h-4" />,
-                      description: '레거시 GPT-4 모델 (호환성용)',
-                      features: ['검증된 성능', '안정성']
-                    }
-                  }
-
-                  const info = modelInfo[providerId as keyof typeof modelInfo]
-                  
-                  return (
-                    <Card key={providerId} className={`${providerConfig.enabled ? 'ring-2 ring-blue-200' : 'opacity-60'}`}>
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            {info?.icon}
-                            <div>
-                              <CardTitle className="text-lg">{info?.name || providerId}</CardTitle>
-                              <p className="text-sm text-gray-600 mt-1">{info?.description}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            {providerConfig.enabled ? (
-                              <Badge className="bg-green-100 text-green-800 border-green-200">
-                                <CheckCircle className="w-3 h-3 mr-1" />
-                                활성화
-                              </Badge>
-                            ) : (
-                              <Badge variant="secondary" className="bg-gray-100 text-gray-600">
-                                비활성화
-                              </Badge>
-                            )}
-                            <Switch 
-                              checked={providerConfig.enabled}
-                              onCheckedChange={() => toggleProvider(providerId)}
-                            />
-                          </div>
-                        </div>
-                      </CardHeader>
-                      
-                      {providerConfig.enabled && (
-                        <CardContent className="space-y-4">
-                          {/* 기능 배지 */}
-                          {info?.features && (
-                            <div className="flex flex-wrap gap-2">
-                              {info.features.map((feature) => (
-                                <Badge key={feature} variant="outline" className="text-xs">
-                                  {feature}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
-
-                          <Separator />
-
-                          {/* 모델별 설정 */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* 기본 설정 */}
-                            <div className="space-y-3">
-                              <Label className="text-sm font-medium">기본 설정</Label>
-                              
-                              {/* 모델 선택 */}
-                              {providerId === 'gemini-25' && (
-                                <div>
-                                  <Label className="text-xs text-gray-600">모델 타입</Label>
-                                  <Select 
-                                    value={providerConfig.model} 
-                                    onValueChange={(value) => updateProviderConfig(providerId, 'model', value)}
-                                  >
-                                    <SelectTrigger className="h-8">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="models/gemini-2.5-pro">🚀 Pro (고성능)</SelectItem>
-                                      <SelectItem value="models/gemini-2.5-flash">⚡ Flash (고속)</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              )}
-
-                              <div>
-                                <Label className="text-xs text-gray-600">Temperature</Label>
-                                <Select 
-                                  value={providerConfig.temperature.toString()} 
-                                  onValueChange={(value) => updateProviderConfig(providerId, 'temperature', parseFloat(value))}
-                                >
-                                  <SelectTrigger className="h-8">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="0.0">0.0 (결정적)</SelectItem>
-                                    <SelectItem value="0.1">0.1 (매우 일관성)</SelectItem>
-                                    <SelectItem value="0.3">0.3 (일관성)</SelectItem>
-                                    <SelectItem value="0.7">0.7 (균형)</SelectItem>
-                                    <SelectItem value="1.0">1.0 (창의적)</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            </div>
-
-                            {/* 고급 설정 */}
-                            <div className="space-y-3">
-                              <Label className="text-sm font-medium">고급 설정</Label>
-                              
-                              {/* GPT-5 전용 설정 */}
-                              {providerId === 'openai-gpt5' && (
-                                <>
-                                  <div>
-                                    <Label className="text-xs text-gray-600">Reasoning Effort</Label>
-                                    <Select 
-                                      value={providerConfig.reasoningEffort || 'medium'} 
-                                      onValueChange={(value) => updateProviderConfig(providerId, 'reasoningEffort', value)}
-                                    >
-                                      <SelectTrigger className="h-8">
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="minimal">Minimal (최소)</SelectItem>
-                                        <SelectItem value="low">Low (낮음)</SelectItem>
-                                        <SelectItem value="medium">Medium (기본)</SelectItem>
-                                        <SelectItem value="high">High (높음)</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-
-                                  <div>
-                                    <Label className="text-xs text-gray-600">Verbosity</Label>
-                                    <Select 
-                                      value={providerConfig.verbosity || 'medium'} 
-                                      onValueChange={(value) => updateProviderConfig(providerId, 'verbosity', value)}
-                                    >
-                                      <SelectTrigger className="h-8">
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="low">Low (간결)</SelectItem>
-                                        <SelectItem value="medium">Medium (기본)</SelectItem>
-                                        <SelectItem value="high">High (상세)</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                </>
-                              )}
-
-                              {/* Gemini 전용 설정 */}
-                              {providerId === 'gemini-25' && (
-                                <>
-                                  <div>
-                                    <Label className="text-xs text-gray-600">Top-P</Label>
-                                    <Select 
-                                      value={providerConfig.top_p?.toString() || '0.95'} 
-                                      onValueChange={(value) => updateProviderConfig(providerId, 'top_p', parseFloat(value))}
-                                    >
-                                      <SelectTrigger className="h-8">
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="0.8">0.8 (보수적)</SelectItem>
-                                        <SelectItem value="0.95">0.95 (기본)</SelectItem>
-                                        <SelectItem value="0.99">0.99 (창의적)</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-
-                                  <div>
-                                    <Label className="text-xs text-gray-600">Top-K</Label>
-                                    <Select 
-                                      value={providerConfig.top_k?.toString() || '40'} 
-                                      onValueChange={(value) => updateProviderConfig(providerId, 'top_k', parseInt(value))}
-                                    >
-                                      <SelectTrigger className="h-8">
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="20">20 (제한적)</SelectItem>
-                                        <SelectItem value="40">40 (기본)</SelectItem>
-                                        <SelectItem value="100">100 (다양함)</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        </CardContent>
-                      )}
-                    </Card>
-                  )
-                })}
-
-                {/* 저장 버튼 및 상태 */}
-                <div className="flex justify-between items-center pt-6 border-t">
-                  <div className="text-sm text-gray-600">
-                    {Object.entries(modelConfig.providers).filter(([_, provider]: [string, any]) => provider.enabled).length > 0 ? (
-                      `활성화된 모델: ${Object.entries(modelConfig.providers).filter(([_, provider]: [string, any]) => provider.enabled).length}개`
-                    ) : (
-                      "⚠️ 최소 하나의 모델을 활성화해야 합니다"
-                    )}
-                  </div>
-                  <div className="flex gap-3">
-                    <Button 
-                      variant="outline" 
-                      onClick={loadModelConfig}
-                      disabled={isSavingModelConfig || isLoadingModelConfig}
-                    >
-                      <RefreshCw className={`w-4 h-4 mr-2 ${isLoadingModelConfig ? 'animate-spin' : ''}`} />
-                      초기화
-                    </Button>
-                    <Button 
-                      onClick={saveModelConfig}
-                      disabled={isSavingModelConfig || Object.entries(modelConfig.providers).filter(([_, provider]: [string, any]) => provider.enabled).length === 0}
-                      className="px-6"
-                    >
-                      {isSavingModelConfig ? (
-                        <>
-                          <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                          저장 중...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          설정 저장
-                        </>
-                      )}
-                    </Button>
                   </div>
                 </div>
 
-                {/* 주의사항 */}
-                <Alert className="border-amber-200 bg-amber-50">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription className="text-amber-800">
-                    <strong>⚠️ 설정 변경 시 주의사항</strong>
-                    <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
-                      <li>모델 설정 변경은 다음 평가부터 적용됩니다</li>
-                      <li>최소 하나의 AI 모델은 활성화되어 있어야 합니다</li>
-                      <li>Multi-LLM 모드 비활성화 시 더 빠르지만 정확도가 다소 낮아질 수 있습니다</li>
-                      <li>설정 변경 후 반드시 검증 테스트를 수행하시기 바랍니다</li>
-                    </ul>
-                  </AlertDescription>
-                </Alert>
-              </>
-            )}
-          </TabsContent>
-        </Tabs>
+                {/* AI 모델 정보 */}
+                <div>
+                  <h3 className="font-semibold text-lg mb-3">🤖 현재 설정된 AI 모델</h3>
+                  {isLoadingModelConfig ? (
+                    <div className="flex items-center justify-center py-8">
+                      <RefreshCw className="w-6 h-6 animate-spin mr-2" />
+                      <span>모델 설정을 불러오는 중...</span>
+                    </div>
+                  ) : modelConfig ? (
+                    <div className="space-y-4">
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Settings className="w-5 h-5 text-blue-600" />
+                          <h4 className="font-medium text-blue-800">평가 모드</h4>
+                        </div>
+                        <p className="text-sm text-blue-700">
+                          <strong>Multi-LLM 모드:</strong> {modelConfig.evaluation_mode?.multi_llm ? "✅ 활성화" : "❌ 비활성화"}
+                          {modelConfig.evaluation_mode?.multi_llm && (
+                            <span className="ml-2">
+                              (활성 모델: {Object.entries(modelConfig.providers).filter(([_, provider]: [string, any]) => provider.enabled).length}개)
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <Alert>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        모델 설정을 불러올 수 없습니다.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* AI Settings Modal */}
+        {showAISettings && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto">
+              <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <Settings className="w-5 h-5" />
+                  AI 모델 설정
+                </h2>
+                <Button
+                  onClick={() => setShowAISettings(false)}
+                  variant="ghost"
+                  size="sm"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="p-6 space-y-6">
+                {/* 성공/오류 메시지 */}
+                {modelConfigSuccess && (
+                  <Alert className="border-green-200 bg-green-50">
+                    <CheckCircle className="h-4 w-4" />
+                    <AlertDescription className="text-green-800">{modelConfigSuccess}</AlertDescription>
+                  </Alert>
+                )}
+
+                {modelConfigError && (
+                  <Alert className="border-red-200 bg-red-50">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertDescription className="text-red-800">{modelConfigError}</AlertDescription>
+                  </Alert>
+                )}
+
+                {/* 전역 설정 */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Settings className="w-5 h-5" />
+                      평가 모드 설정
+                    </CardTitle>
+                    <CardDescription>
+                      Multi-LLM 평가 모드를 활성화하면 여러 AI 모델을 동시에 사용하여 더 정확한 평가를 수행합니다.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {isLoadingModelConfig ? (
+                      <div className="flex items-center justify-center py-8">
+                        <RefreshCw className="w-6 h-6 animate-spin mr-2" />
+                        <span>설정을 불러오는 중...</span>
+                      </div>
+                    ) : modelConfig ? (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <Label className="text-base font-medium">Multi-LLM 평가</Label>
+                            <p className="text-sm text-gray-600 mt-1">
+                              여러 AI 모델을 동시에 사용하여 더 정확한 평가를 수행합니다.
+                            </p>
+                          </div>
+                          <Switch 
+                            checked={modelConfig.evaluation_mode?.multi_llm || false}
+                            onCheckedChange={toggleMultiLLM}
+                          />
+                        </div>
+                        
+                        {modelConfig.evaluation_mode?.multi_llm && (
+                          <div className="bg-blue-50 p-4 rounded-lg">
+                            <p className="text-sm text-blue-800">
+                              ✅ Multi-LLM 모드가 활성화되었습니다. 활성화된 모든 모델을 사용하여 평가합니다.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ) : null}
+                  </CardContent>
+                </Card>
+
+                {/* AI 모델 설정 */}
+                {modelConfig && (
+                  <>
+                    {Object.entries(modelConfig.providers).map(([providerId, providerConfig]: [string, any]) => {
+                      const modelInfo = {
+                        'openai-gpt5': {
+                          name: 'GPT-5-mini',
+                          icon: <Bot className="w-4 h-4" />,
+                          description: 'OpenAI의 최신 GPT-5-mini 모델 (Responses API)',
+                          features: ['고성능 추론', '비용 효율적', 'CoT 지원']
+                        },
+                        'gemini-25': {
+                          name: 'Gemini 2.5',
+                          icon: <Target className="w-4 h-4" />,
+                          description: 'Google의 Gemini 2.5 Pro/Flash 모델',
+                          features: ['빠른 처리', '문화적 감수성', '다각적 관점']
+                        },
+                        'openai': {
+                          name: 'GPT-4',
+                          icon: <MessageSquare className="w-4 h-4" />,
+                          description: '레거시 GPT-4 모델 (호환성용)',
+                          features: ['검증된 성능', '안정성']
+                        }
+                      }
+
+                      const info = modelInfo[providerId as keyof typeof modelInfo]
+                      
+                      return (
+                        <Card key={providerId} className={`${providerConfig.enabled ? 'ring-2 ring-blue-200' : 'opacity-60'}`}>
+                          <CardHeader>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                {info?.icon}
+                                <div>
+                                  <CardTitle className="text-lg">{info?.name || providerId}</CardTitle>
+                                  <p className="text-sm text-gray-600 mt-1">{info?.description}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                {providerConfig.enabled ? (
+                                  <Badge className="bg-green-100 text-green-800 border-green-200">
+                                    <CheckCircle className="w-3 h-3 mr-1" />
+                                    활성화
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="secondary" className="bg-gray-100 text-gray-600">
+                                    비활성화
+                                  </Badge>
+                                )}
+                                <Switch 
+                                  checked={providerConfig.enabled}
+                                  onCheckedChange={() => toggleProvider(providerId)}
+                                />
+                              </div>
+                            </div>
+                          </CardHeader>
+                          
+                          {providerConfig.enabled && (
+                            <CardContent className="space-y-4">
+                              {/* 기능 배지 */}
+                              {info?.features && (
+                                <div className="flex flex-wrap gap-2">
+                                  {info.features.map((feature) => (
+                                    <Badge key={feature} variant="outline" className="text-xs">
+                                      {feature}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
+
+                              <Separator />
+
+                              {/* 모델 설정 */}
+                              <div className="space-y-4">
+                                <div>
+                                  <Label className="text-sm">모델</Label>
+                                  <p className="text-sm font-mono bg-gray-50 px-2 py-1 rounded mt-1">
+                                    {providerConfig.model}
+                                  </p>
+                                </div>
+
+                                <div>
+                                  <Label className="text-sm">Temperature</Label>
+                                  <p className="text-sm text-gray-600 mb-2">창의성과 일관성의 균형 (0.0 ~ 1.0)</p>
+                                  <Input
+                                    type="number"
+                                    value={providerConfig.temperature}
+                                    onChange={(e) => updateProviderConfig(providerId, 'temperature', parseFloat(e.target.value))}
+                                    min="0"
+                                    max="1"
+                                    step="0.1"
+                                    className="w-32"
+                                  />
+                                </div>
+
+                                {providerId === 'openai-gpt5' && (
+                                  <>
+                                    <div>
+                                      <Label className="text-sm">Reasoning Effort</Label>
+                                      <p className="text-sm text-gray-600 mb-2">추론 노력 수준</p>
+                                      <Select
+                                        value={providerConfig.reasoningEffort || 'medium'}
+                                        onValueChange={(value) => updateProviderConfig(providerId, 'reasoningEffort', value)}
+                                      >
+                                        <SelectTrigger className="w-48">
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="low">Low</SelectItem>
+                                          <SelectItem value="medium">Medium</SelectItem>
+                                          <SelectItem value="high">High</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  </>
+                                )}
+
+                                {providerId === 'gemini-25' && (
+                                  <>
+                                    <div>
+                                      <Label className="text-sm">Top-P</Label>
+                                      <p className="text-sm text-gray-600 mb-2">토큰 선택 확률 임계값 (0.0 ~ 1.0)</p>
+                                      <Input
+                                        type="number"
+                                        value={providerConfig.top_p || 0.95}
+                                        onChange={(e) => updateProviderConfig(providerId, 'top_p', parseFloat(e.target.value))}
+                                        min="0"
+                                        max="1"
+                                        step="0.05"
+                                        className="w-32"
+                                      />
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+                            </CardContent>
+                          )}
+                        </Card>
+                      )
+                    })}
+
+                    {/* 저장 버튼 */}
+                    <div className="flex justify-end">
+                      <Button 
+                        onClick={saveModelConfig} 
+                        disabled={isSavingModelConfig}
+                        className="gap-2"
+                      >
+                        {isSavingModelConfig ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 animate-spin" />
+                            저장 중...
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            설정 저장
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
