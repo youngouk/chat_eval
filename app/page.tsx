@@ -22,6 +22,7 @@ import {
   Camera,
   Image,
   X,
+  Trash2,
 } from "lucide-react"
 import { EditableEvaluationContent } from "@/components/evaluation/EditableEvaluationContent"
 import { Button } from "@/components/ui/button"
@@ -241,6 +242,7 @@ export default function FintechFeedbackSystem() {
   const [activeTab, setActiveTab] = useState("upload")
   const [viewingArchive, setViewingArchive] = useState<any>(null)
   const [isLoadingArchiveData, setIsLoadingArchiveData] = useState(false)
+  const [deletingArchiveId, setDeletingArchiveId] = useState<string | null>(null)
 
   // 환경 상태 확인 함수
   const checkEnvironment = async () => {
@@ -559,6 +561,40 @@ export default function FintechFeedbackSystem() {
   // 아카이브 뷰어 닫기
   const closeArchiveViewer = () => {
     setViewingArchive(null)
+  }
+
+  // 아카이브 삭제 함수
+  const deleteArchive = async (archiveId: string, filename: string) => {
+    const confirmDelete = confirm(`정말로 "${filename}" 파일을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)
+    
+    if (!confirmDelete) return
+    
+    setDeletingArchiveId(archiveId)
+    
+    try {
+      const response = await fetch(`/api/archive?filename=${encodeURIComponent(archiveId)}`, {
+        method: 'DELETE',
+      })
+      
+      const result = await response.json()
+      
+      if (result.success) {
+        alert(`✅ ${result.message}`)
+        // 아카이브 목록 새로고침
+        await loadArchives()
+        // 만약 현재 보고 있는 아카이브가 삭제된 것이라면 뷰어 닫기
+        if (viewingArchive?.archiveInfo?.filename === filename) {
+          closeArchiveViewer()
+        }
+      } else {
+        throw new Error(result.error || '삭제에 실패했습니다.')
+      }
+    } catch (error) {
+      console.error('아카이브 삭제 오류:', error)
+      alert(`❌ 아카이브 삭제에 실패했습니다.\n오류: ${error instanceof Error ? error.message : '알 수 없는 오류'}`)
+    } finally {
+      setDeletingArchiveId(null)
+    }
   }
 
   // 컴포넌트 마운트 시 아카이브 목록 및 모델 설정 로드
@@ -2166,6 +2202,20 @@ export default function FintechFeedbackSystem() {
                                 title="다운로드"
                               >
                                 <Download className="w-3 h-3" />
+                              </Button>
+                              <Button
+                                onClick={() => deleteArchive(archive.id, archive.filename)}
+                                variant="outline"
+                                size="sm"
+                                title="삭제"
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                disabled={deletingArchiveId === archive.id}
+                              >
+                                {deletingArchiveId === archive.id ? (
+                                  <RefreshCw className="w-3 h-3 animate-spin" />
+                                ) : (
+                                  <Trash2 className="w-3 h-3" />
+                                )}
                               </Button>
                             </div>
                           </div>
